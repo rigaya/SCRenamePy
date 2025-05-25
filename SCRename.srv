@@ -1,0 +1,48 @@
+:放送局名定義ファイル
+:リネーム前,しょぼいカレンダー,リネーム後,ChID
+NHK BS1,NHK-BS1,BS1,9
+NHKBS1,NHK-BS1,BS1,9
+NHK BS2,NHK-BS2,BS2,10
+NHK h,NHK-BShi,BShi,11
+NHKBSプレミアム,NHK BSプレミアム,BSP,179
+BS日テレ,BS日テレ,BS4,71
+BS朝日,BS朝日,BSA,18
+BS-TBS,BS-TBS,BS-TBS,16
+BSテレ東,BSテレ東,BSTX,15
+BSフジ,BSフジ,BS-FUJI,17
+WOWOW,WOWOW,WOWOW,12
+BS11イレブン,BS11イレブン,BS11,128
+TwellV,TwellV,WHC,129
+AT-X,AT-X,AT-X,20
+アニマックス,アニマックス,ANIMAX,21
+キッズステーション,キッズステーション,KIDS,22
+NHK総合,NHK総合,NHK-G,1
+NHK教育,NHK Eテレ,NHK-E,2
+NHKEテレ,NHK Eテレ,NHK-E,2
+tvk,tvk,tvk,8
+チバテレビ,チバテレビ,CTC,13
+テレ玉,テレ玉,TVS,14
+日テレ,日本テレビ,NTV,4
+テレビ朝日,テレビ朝日,EX,6
+TBS,TBS,TBS,5
+テレビ東京,テレビ東京,TX,7
+テレ東,テレビ東京,TX,7
+フジテレビ,フジテレビ,CX,3
+TOKYO MX,TOKYO MX,MX,19
+TOKYO MX1,TOKYO MX,MX,19
+TOKYO MX2,TOKYO MX,MX,19
+東海テレビ,東海テレビ,THK,77
+中京テレビ,中京テレビ,CTV,80
+CBC,CBCテレビ,CBC,79
+メ～テレ,メ～テレ,NBN,81
+三重テレビ,三重テレビ,MTV,82
+ぎふチャン,ぎふチャン,GBS,83
+テレビ愛知,テレビ愛知,TVA,59
+サンテレビ,サンテレビジョン,SUN,58
+BBCびわ湖放送,ＢＢＣびわ湖放送,BBC,87
+MBS毎日放送,MBS毎日放送,MBS,48
+KBS京都,KBS京都,KBS,66
+ABCテレビ,ABCテレビ,ABC,67
+テレビ大阪,テレビ大阪,TVO,28
+関西テレビ,関西テレビ,KTV,70
+読売テレビ,読売テレビ,ytv,54
