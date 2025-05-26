@@ -1,9 +1,9 @@
 # SCRename.py
 
 ## 概要
-SCRename.pyは、[しょぼいカレンダー](http://cal.syoboi.jp/)からタイトル・話数・サブタイトル・放送日時を取得し、ファイル名を自動でリネームするツールです。
+SCRename.pyは、SCRename.vbsのpython移植版で、[しょぼいカレンダー](http://cal.syoboi.jp/)からタイトル・話数・サブタイトル・放送日時を取得し、ファイル名を自動でリネームするツールです。
 
-本ツールはAmatsukazeのLinux対応の一環で、SCRename.vbsのPython移植版したものです。主な違いとして、設定ファイル（SCRename.srv, SCRename.rp1, SCRename.rp2, SCRename.exc等）は**UTF-8**で記述してください（VBS版はShift_JISやUTF-16も可でしたが、Python版はUTF-8のみ対応です）。
+本ツールはAmatsukazeのLinux対応の一環で、SCRename.vbsのpython移植を試みたものです。主な違いとして、設定ファイル（SCRename.srv, SCRename.rp1, SCRename.rp2, SCRename.exc等）は**UTF-8**で記述してください（オリジナル版はShift_JIS/UTF-16対応でしたが、Python版はUTF-8のみ対応です）。
 
 EpgDataCap_BonやTvRock等の録画ソフトとの連携を想定していますが、ファイル名が規則通りであれば他の用途でも利用可能です。
 
@@ -27,7 +27,7 @@ SCRename.py [オプション] "ファイル" "リネーム書式" [番組名開�
 - `-s`   : 不要な空白の削除を行いません
 
 ### 引数
-- `ファイル` : リネーム対象のファイルのフルパス
+- `ファイル` : リネーム対象のファイルへのパス
 - `リネーム書式` : リネーム後のファイル名の書式
 - `番組名開始位置` : ファイル名の先頭を1として、番組名の開始位置（省略時は自動判定）
 - `検索文字数` : 番組名検索に使う文字数（省略時は4）
@@ -56,4 +56,4 @@ SCRename.py "202304011230_アニメタイトル_テレビ局.ts" "$SCtitle$ 第$
 **これらのファイルはUTF-8で保存してください。**
 
 ## 謝辞
-SCRename.vbsの作者様に心より感謝申し上げます。
+素晴らしいソフトを公開いただいたSCRename.vbsの作者様に心より感謝申し上げます。
