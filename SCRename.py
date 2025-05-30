@@ -16,12 +16,12 @@ from dataclasses import dataclass
 # 定数定義
 SEP = "_"
 NIND = "#"
-CHAR1 = r" :;/'\"-"
+CHAR1 = r" :;/'" + r'"-'
 CHAR2 = r"　：；／’”－"
 CHAR3 = r"!？！～…『』"
 CHAR4 = r"([（〔［｛〈《「【＜"
 CHAR5 = r")]）〕］｝〉》」】＞"
-CHAR6 = r"/:*?!""<>|"
+CHAR6 = r'/:*?!"<>|'
 CHAR7 = r"／：＊？！”＜＞｜"
 CHAR8 = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"]
 CHAR9 = ["quot", "amp", "#039", "lt", "gt"]
