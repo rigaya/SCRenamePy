@@ -1186,6 +1186,18 @@ def main():
     tgtdt = None
     stdt = None
     eddt = None
+
+    # 環境変数 PYTHONIOENCODING の値を取得
+    # pyinstaller でビルドした場合、環境変数 PYTHONIOENCODING の値が設定されていないが、
+    # Amatsukaze から実行するとき困るので、環境変数 PYTHONIOENCODING の値を再設定する
+    ioencoding = os.environ.get("PYTHONIOENCODING")
+    if ioencoding and (sys.stdout.encoding != ioencoding or sys.stderr.encoding != ioencoding):
+        try:
+            sys.stdin.reconfigure(encoding=ioencoding)
+            sys.stdout.reconfigure(encoding=ioencoding)
+            sys.stderr.reconfigure(encoding=ioencoding)
+        except Exception as e:
+            print(f"環境変数 PYTHONIOENCODING の値: {ioencoding} を設定できませんでした。", file=sys.stderr)
     
     # 引数処理
     for arg in sys.argv[1:]:
