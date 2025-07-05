@@ -687,41 +687,43 @@ def process_episode_number(subtitle: str) -> Tuple[str, str, str, str]:
     number2 = ""
     number3 = ""
     number4 = ""
-    
-    if subtitle:
-        i = 0
-        # オリジナルに忠実に実装する
-        while i < len(subtitle):
-            if subtitle[i] == "#":
-                j = i + 1
-                while j < len(subtitle) and subtitle[j].isdigit():
-                    j += 1
-                if j > i + 1:
-                    num = subtitle[i+1:j]
-                    num_int = int(num)
-                    num_str = str(num_int)
-                    number1 += num_str
-                    
-                    # 2桁の話数
-                    if len(num_str) < 2:
-                        num_str = "0" + num_str
-                    number2 += num_str
-                    
-                    # 3桁の話数
-                    if len(num_str) < 3:
-                        num_str = "0" + num_str
-                    number3 += num_str
-                    
-                    # 4桁の話数
-                    if len(num_str) < 4:
-                        num_str = "0" + num_str
-                    number4 += num_str
-                i = j
-            else:
-                number2 += subtitle[i]
-                number3 += subtitle[i]
-                number4 += subtitle[i]
-                i += 1
+
+    if subtitle is None:
+        return number1, number2, number3, number4
+
+    i = 0
+    # オリジナルに忠実に実装する
+    while i < len(subtitle):
+        if subtitle[i] == "#":
+            j = i + 1
+            while j < len(subtitle) and subtitle[j].isdigit():
+                j += 1
+            if j > i + 1:
+                num = subtitle[i+1:j]
+                num_int = int(num)
+                num_str = str(num_int)
+                number1 += num_str
+                
+                # 2桁の話数
+                if len(num_str) < 2:
+                    num_str = "0" + num_str
+                number2 += num_str
+                
+                # 3桁の話数
+                if len(num_str) < 3:
+                    num_str = "0" + num_str
+                number3 += num_str
+                
+                # 4桁の話数
+                if len(num_str) < 4:
+                    num_str = "0" + num_str
+                number4 += num_str
+            i = j
+        else:
+            number2 += subtitle[i]
+            number3 += subtitle[i]
+            number4 += subtitle[i]
+            i += 1
     
     return number1, number2, number3, number4
 
@@ -969,13 +971,12 @@ def process_file(file_path: str, rename_format: str, options: RenameOptions, ser
     dst_path = rename_format
     
     # 話数処理
-    if number:
-        number1, number2, number3, number4 = process_episode_number(number)
-        dst_path = dst_path.replace("$SCnumber1$", number1)
-        dst_path = dst_path.replace("$SCnumber$", number2)
-        dst_path = dst_path.replace("$SCnumber2$", number2)
-        dst_path = dst_path.replace("$SCnumber3$", number3)
-        dst_path = dst_path.replace("$SCnumber4$", number4)
+    number1, number2, number3, number4 = process_episode_number(number)
+    dst_path = dst_path.replace("$SCnumber1$", number1)
+    dst_path = dst_path.replace("$SCnumber$", number2)
+    dst_path = dst_path.replace("$SCnumber2$", number2)
+    dst_path = dst_path.replace("$SCnumber3$", number3)
+    dst_path = dst_path.replace("$SCnumber4$", number4)
 
     # 開始時刻の置換
     dst_path = replace_date_time_macros(dst_path, stdt, "")
@@ -1186,18 +1187,6 @@ def main():
     tgtdt = None
     stdt = None
     eddt = None
-
-    # 環境変数 PYTHONIOENCODING の値を取得
-    # pyinstaller でビルドした場合、環境変数 PYTHONIOENCODING の値が設定されていないが、
-    # Amatsukaze から実行するとき困るので、環境変数 PYTHONIOENCODING の値を再設定する
-    ioencoding = os.environ.get("PYTHONIOENCODING")
-    if ioencoding and (sys.stdout.encoding != ioencoding or sys.stderr.encoding != ioencoding):
-        try:
-            sys.stdin.reconfigure(encoding=ioencoding)
-            sys.stdout.reconfigure(encoding=ioencoding)
-            sys.stderr.reconfigure(encoding=ioencoding)
-        except Exception as e:
-            print(f"環境変数 PYTHONIOENCODING の値: {ioencoding} を設定できませんでした。", file=sys.stderr)
     
     # 引数処理
     for arg in sys.argv[1:]:
