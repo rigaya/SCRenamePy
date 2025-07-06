@@ -5,6 +5,7 @@
 import os
 import sys
 import time
+import re
 import datetime
 import urllib.request
 import urllib.parse
@@ -49,8 +50,8 @@ def get_file_info(file_path: str) -> Tuple[str, str, str]:
     # 拡張子の取得
     name, ext = os.path.splitext(filename)
     if SEP in name:
-        base, _ = os.path.splitext(name)
-        if SEP in base:
+        base, ext2 = os.path.splitext(name)
+        if SEP in base and re.match(r'^[0-9a-zA-Z]+$', ext2):
             name = base
     
     return rpath, name, ext
