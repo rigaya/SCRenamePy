@@ -22,8 +22,6 @@ CHAR2 = r"　：；／’”－"
 CHAR3 = r"!？！～…『』"
 CHAR4 = r"([（〔［｛〈《「【＜"
 CHAR5 = r")]）〕］｝〉》」】＞"
-CHAR6 = r'/:*?!"<>|'
-CHAR7 = r"／：＊？！”＜＞｜"
 CHAR8 = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"]
 CHAR9 = ["quot", "amp", "#039", "lt", "gt"]
 CHAR10 = ["\"", "&", "'", "＜", "＞"]
@@ -825,6 +823,12 @@ def replace_invalid_chars(dst_path: str, rename_format: str) -> str:
         prefix = dst_path[:2]
         dst_path = dst_path[2:]
 
+    # nt(Windows)の場合は '/' は使用不可として、'／' に変換する
+    # それ以外(Linux)の場合は '/' は区切り文字として使用可能にする
+    CHAR6 = '/' if os.name == 'nt' else ''
+    CHAR7 = '／' if os.name == 'nt' else ''
+    CHAR6 += r':*?!"<>|'
+    CHAR7 += r"：＊？！”＜＞｜"
     for i in range(len(CHAR6)):
         dst_path = dst_path.replace(CHAR6[i], CHAR7[i])
     return prefix + dst_path
