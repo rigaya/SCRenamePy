@@ -897,9 +897,9 @@ def replace_invalid_chars(dst_path: str, rename_format: str) -> str:
     return prefix + dst_path
 
 def replace_invalid_char_for_program_info(dst_str: str) -> str:
-    """Linux環境用に使用不可文字を置換する"""
+    """Linux環境で番組情報に含まれる使用不可文字を置換する"""
 
-    if not dst_str:
+    if not dst_str or os.name == 'nt':
         return dst_str
 
     # 放送情報に含まれる '/' は使用不可として、'／' に変換する
