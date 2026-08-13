@@ -646,11 +646,11 @@ def rename_file(src_path: str, dst_path: str, options: RenameOptions) -> bool:
         src = Path(src_path)
         dst = Path(dst_path)
         
-        # リネーム先ディレクトリが存在しない場合は作成
-        dst.parent.mkdir(parents=True, exist_ok=True)
-        
         # リネーム実行
         if not options.test_mode:  # -t オプション
+            # リネーム先ディレクトリが存在しない場合は作成
+            dst.parent.mkdir(parents=True, exist_ok=True)
+
             # 強制上書きモードでない場合は存在確認
             if not options.force_rename and dst.exists():
                 print(f"{dst} はすでに存在しています。", file=sys.stderr)
@@ -825,6 +825,7 @@ def replace_invalid_chars(dst_path: str, rename_format: str) -> str:
 
     # nt(Windows)の場合は '/' は使用不可として、'／' に変換する
     # それ以外(Linux)の場合は '/' は区切り文字として使用可能にする
+    # replace_invalid_char_for_title 関数で同様の処理を行うが、リネーム書式に含まれる '/' を取り逃さないため残す
     CHAR6 = '/' if os.name == 'nt' else ''
     CHAR7 = '／' if os.name == 'nt' else ''
     CHAR6 += r':*?!"<>|'
@@ -832,6 +833,18 @@ def replace_invalid_chars(dst_path: str, rename_format: str) -> str:
     for i in range(len(CHAR6)):
         dst_path = dst_path.replace(CHAR6[i], CHAR7[i])
     return prefix + dst_path
+
+def replace_invalid_char_for_title(dst_str: str) -> str:
+    """Linux環境用に使用不可文字を置換する"""
+
+    if not dst_str:
+        return dst_str
+ 
+    # 放送情報に含まれる '/' は使用不可として、'／' に変換する
+    CHAR6 = '/'
+    CHAR7 = '／'
+    dst_str = dst_str.replace(CHAR6, CHAR7)
+    return dst_str
 
 def remove_unnecessary_spaces(dst_path: str) -> str:
     """不要な空白を削除する"""
@@ -988,6 +1001,10 @@ def process_file(file_path: str, rename_format: str, options: RenameOptions, ser
 
     # 終了時刻の置換
     dst_path = replace_date_time_macros(dst_path, eddt, "ed")
+
+    # (Linux環境用)タイトル放送局名の使用不可文字置換
+    main_title = replace_invalid_char_for_title(main_title)
+    subtitle = replace_invalid_char_for_title(subtitle)
 
     # 放送局名の置換
     service_name = service[serv][2] if serv >= 0 else ""
