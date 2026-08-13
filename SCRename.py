@@ -887,7 +887,7 @@ def replace_invalid_chars(dst_path: str, rename_format: str) -> str:
 
     # nt(Windows)の場合は '/' は使用不可として、'／' に変換する
     # それ以外(Linux)の場合は '/' は区切り文字として使用可能にする
-    # replace_invalid_char_for_title 関数で同様の処理を行うが、リネーム書式に含まれる '/' を取り逃さないため残す
+    # replace_invalid_char_for_program_info 関数で同様の処理を行うが、リネーム書式に含まれる '/' を取り逃さないため残す
     CHAR6 = '/' if os.name == 'nt' else ''
     CHAR7 = '／' if os.name == 'nt' else ''
     CHAR6 += r':*?!"<>|'
@@ -896,12 +896,12 @@ def replace_invalid_chars(dst_path: str, rename_format: str) -> str:
         dst_path = dst_path.replace(CHAR6[i], CHAR7[i])
     return prefix + dst_path
 
-def replace_invalid_char_for_title(dst_str: str) -> str:
+def replace_invalid_char_for_program_info(dst_str: str) -> str:
     """Linux環境用に使用不可文字を置換する"""
 
     if not dst_str:
         return dst_str
- 
+
     # 放送情報に含まれる '/' は使用不可として、'／' に変換する
     CHAR6 = '/'
     CHAR7 = '／'
@@ -1078,12 +1078,13 @@ def process_file(file_path: str, rename_format: str, options: RenameOptions, ser
     # 終了時刻の置換
     dst_path = replace_date_time_macros(dst_path, eddt, "ed")
 
-    # (Linux環境用)タイトル放送局名の使用不可文字置換
-    main_title = replace_invalid_char_for_title(main_title)
-    subtitle = replace_invalid_char_for_title(subtitle)
-
-    # 放送局名の置換
+    # (Linux環境用)番組情報の使用不可文字置換
     service_name = service[serv][2] if serv >= 0 else ""
+    main_title = replace_invalid_char_for_program_info(main_title)
+    subtitle = replace_invalid_char_for_program_info(subtitle)
+    service_name = replace_invalid_char_for_program_info(service_name)
+
+    # 番組情報の置換
     dst_path = replace_program_info_macros(dst_path, main_title, subtitle, service_name)
 
     # SCRename.rp2 読み込み＆リネーム名置換
