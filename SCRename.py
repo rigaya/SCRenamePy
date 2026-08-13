@@ -202,8 +202,78 @@ def get_title(ftitle: str, search_len: int = 4) -> str:
         if char in " " + SEP + CHAR3 + CHAR4 + CHAR5:
             break
         title += char
+
+    return title
+
+def get_title_from_position(ftitle: str, start_pos: int, search_len: int = 4) -> str:
+    """指定した位置からタイトルを取得"""
+    if start_pos >= len(ftitle):
+        return ""
+
+    if search_len < 1:
+        search_len = 4
+    if start_pos + search_len > len(ftitle):
+        search_len = len(ftitle) - start_pos
+
+    # 開始位置の文字を取得
+    title = ftitle[start_pos]
+
+    # search_len文字まで、または区切り文字が見つかるまで文字を追加
+    for i in range(start_pos + 1, start_pos + search_len):
+        char = ftitle[i]
+        if char in " " + SEP + CHAR3 + CHAR4 + CHAR5:
+            break
+        title += char
     
     return title
+
+def split_title_by_delimiters(ftitle: str) -> List[Tuple[int, str]]:
+    """タイトルを区切り文字で分割し、各単語の開始位置と文字列を返す"""
+    delimiters = " " + SEP + CHAR3 + CHAR4 + CHAR5
+    words = []
+    start = 0
+
+    i = 0
+    while i < len(ftitle):
+        if ftitle[i] in delimiters:
+            # 区切り文字が見つかった
+            if i > start:
+                # 単語が見つかった（空でない場合のみ追加）
+                word = ftitle[start:i]
+                if word:
+                    words.append((start, word))
+            # 区切り文字をスキップ
+            i += 1
+            start = i
+        else:
+            i += 1
+
+    # 最後の単語を追加（空でない場合のみ）
+    if start < len(ftitle):
+        word = ftitle[start:]
+        if word:
+            words.append((start, word))
+
+    return words
+
+def get_title_search_candidates(ftitle: str, search_len: int = 4) -> List[str]:
+    """番組検索に使用するタイトル候補を返す"""
+    words = split_title_by_delimiters(ftitle)
+    if not words:
+        return []
+
+    if search_len < 1:
+        search_len = 4
+
+    candidates = [get_title_from_position(ftitle, words[0][0], search_len)]
+
+    # 初回検索に失敗した場合、次の語が十分に長ければ1回だけ再試行する
+    if len(words) > 1 and len(words[1][1]) >= search_len:
+        retry_title = get_title_from_position(ftitle, words[1][0], search_len)
+        if retry_title != candidates[0]:
+            candidates.append(retry_title)
+
+    return candidates
 
 def get_service(ftitle: str, title: str, service: List[List[str]], pos: int) -> int:
     """放送局名を取得"""
@@ -629,15 +699,7 @@ def search_program(title: str, tgtdt: datetime.datetime, days: int, serv: int, s
             if program_title:
                 return program_title, subtitle, number, stdt, eddt
         
-        # 話数検索
-        if options.search_episode or options.recursive_search:  # -a または -a1 オプション
-            if not options.recursive_search:
-                print("番組情報が見つかりませんでした。", file=sys.stderr)
-            print("話数検索を行います。\n", file=sys.stderr)
-            
-            # search_episode_info関数を呼び出して話数検索を実行
-            return search_episode_info(title, title, serv, service, options)
-    
+
     return None, None, None, None, None
 
 def rename_file(src_path: str, dst_path: str, options: RenameOptions) -> bool:
@@ -930,34 +992,48 @@ def process_file(file_path: str, rename_format: str, options: RenameOptions, ser
     normalized_title = convert_chars(raw_title)
     print(f"Normalized Title: {normalized_title}", file=sys.stderr)
 
-    # タイトル取得
-    main_title = get_title(normalized_title, options.search_len)
-    print(f"Main Title: {main_title}", file=sys.stderr)
+    # 番組検索に使用するタイトル候補を取得
+    title_candidates = get_title_search_candidates(normalized_title, options.search_len)
+    if not title_candidates:
+        print("タイトルを取得できませんでした。", file=sys.stderr)
+        return False
 
     # 放送局名取得
-    serv = get_service(normalized_title, main_title, service, options.start_pos)
+    serv = get_service(normalized_title, title_candidates[0], service, options.start_pos)
     if serv >= 0:
         print(f"Service: {service[serv][0]} ({service[serv][1]})", file=sys.stderr)
     else:
         print("Service: Unknown", file=sys.stderr)
 
-    # 番組検索
+    # 番組検索（初回検索に失敗した場合のみ、条件を満たせば1回再試行）
     program_info = None
     subtitle = None
     number = None
     stdt = None
     eddt = None
+    main_title = None
+    search_succeeded = False
 
     # -a1オプションが指定されていない場合は通常の番組情報検索を実行
     if not options.recursive_search:
-        program_info, subtitle, number, stdt, eddt = search_program(main_title, tgtdt, days, serv, service, options, dtflag)
+        for attempt, main_title in enumerate(title_candidates):
+            print(f"Main Title (attempt {attempt + 1}): {main_title}", file=sys.stderr)
+            program_info, subtitle, number, stdt, eddt = search_program(main_title, tgtdt, days, serv, service, options, dtflag)
+            if program_info:
+                search_succeeded = True
+                break
 
-    # 通常の検索で見つからない場合、または-a1オプションが指定されている場合は話数検索を実行
-    if not program_info and (options.search_episode or options.recursive_search):
+    # 通常の検索で見つからない場合、または-a1オプションが指定されている場合は話数検索を1回だけ実行
+    if not search_succeeded and (options.search_episode or options.recursive_search):
         print("話数検索を行います。\n", file=sys.stderr)
+        main_title = title_candidates[0]
         program_info, subtitle, number, stdt, eddt = search_episode_info(normalized_title, main_title, serv, service, options)
+        search_succeeded = bool(program_info)
 
-    if not program_info:
+    # すべての試行が失敗した場合
+    if not search_succeeded:
+        # 最初の単語をmain_titleとして使用（従来の動作を尊重）
+        main_title = title_candidates[0]
         if not options.force_rename:
             print(f"{main_title} の番組情報が見つかりませんでした。", file=sys.stderr)
             return False
@@ -1290,4 +1366,4 @@ def main():
             sys.exit(1)
 
 if __name__ == "__main__":
-    main() 
+    main()
