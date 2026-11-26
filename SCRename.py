@@ -853,13 +853,41 @@ def replace_date_time_macros(dst_path: str, dt: datetime.datetime, prefix: str =
 
     return dst_path
 
+# 〜…〜 / ～…～ / ~…~ で囲まれた部分（副題など）
+WAVE_ENCLOSED = re.compile(r"\s*[~〜～][^~〜～]*[~〜～]\s*")
+
+def shorten_text(text: str, max_len: int, strip_wave: bool = False) -> str:
+    """max_len 文字を超える場合に切り詰める。
+    strip_wave が真なら、先に波ダッシュで囲まれた部分を削除し、それでも超える場合のみ切り詰める"""
+    if not text or len(text) <= max_len:
+        return text
+    if strip_wave:
+        stripped = WAVE_ENCLOSED.sub(" ", text).strip()
+        if stripped:
+            text = stripped
+    if len(text) > max_len:
+        text = text[:max_len].rstrip()
+    return text
+
 def replace_program_info_macros(dst_path: str, main_title: str, subtitle: str, service_name: str) -> str:
     """番組情報のマクロを置換する"""
+    subtitle = subtitle if subtitle else ""
+    values = {
+        "title": main_title,
+        "title2": main_title.replace(" ", "").upper(),
+        "subtitle": subtitle,
+    }
+    # 文字数制限付きマクロ（例: $SCtitle:40$ は切り詰めのみ、$SCtitle:40~$ は〜…〜部分を先に削除）
+    dst_path = re.sub(
+        r"\$SC(title2|title|subtitle):(\d+)([~〜～]?)\$",
+        lambda m: shorten_text(values[m.group(1)], int(m.group(2)), bool(m.group(3))),
+        dst_path,
+    )
     dst_path = dst_path.replace("$SCservice$", service_name)
     dst_path = dst_path.replace("$SCpart$", "")
-    dst_path = dst_path.replace("$SCtitle$", main_title)
-    dst_path = dst_path.replace("$SCtitle2$", main_title.replace(" ", "").upper())
-    dst_path = dst_path.replace("$SCsubtitle$", subtitle if subtitle else "")
+    dst_path = dst_path.replace("$SCtitle$", values["title"])
+    dst_path = dst_path.replace("$SCtitle2$", values["title2"])
+    dst_path = dst_path.replace("$SCsubtitle$", subtitle)
     return dst_path
 
 def apply_rp2_replacements(dst_path: str, script_path: str) -> str:
