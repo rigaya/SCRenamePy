@@ -40,6 +40,8 @@ SCRename.py [オプション] "ファイル" "リネーム書式" [番組名開�
 - `$SCservice$` : 放送局名
 - `$SCdate$` : 放送開始年月日（YYMMDD）
 - `$SCtime$` : 放送開始時刻（hhmm）
+- `$SCtitle:N$` / `$SCtitle2:N$` / `$SCsubtitle:N$` : 文字数制限付き。N文字を超える場合はN文字で切り詰めます
+- `$SCtitle:N~$` / `$SCtitle2:N~$` / `$SCsubtitle:N~$` : N文字を超える場合、先に `〜…〜`（`～…～`、`~…~` も可）で囲まれた部分を削除し、それでもN文字を超える場合のみN文字で切り詰めます
 - ほか多数（詳細はReadme.org.txt参照）
 
 ### 実行例
