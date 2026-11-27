@@ -855,16 +855,23 @@ def replace_date_time_macros(dst_path: str, dt: datetime.datetime, prefix: str =
 
 # 〜…〜 / ～…～ / ~…~ で囲まれた部分（副題など）
 WAVE_ENCLOSED = re.compile(r"\s*[~〜～][^~〜～]*[~〜～]\s*")
+# 文字列全体が波ダッシュ囲みだけのとき、中身を取り出す
+WAVE_ONLY = re.compile(r"\s*[~〜～]([^~〜～]*)[~〜～]\s*")
 
 def shorten_text(text: str, max_len: int, strip_wave: bool = False) -> str:
     """max_len 文字を超える場合に切り詰める。
-    strip_wave が真なら、先に波ダッシュで囲まれた部分を削除し、それでも超える場合のみ切り詰める"""
+    strip_wave が真なら、先に波ダッシュで囲まれた部分を削除し、それでも超える場合のみ切り詰める。
+    文字列全体がその囲みだけのときは、囲みを外した中身を残す。"""
     if not text or len(text) <= max_len:
         return text
     if strip_wave:
         stripped = WAVE_ENCLOSED.sub(" ", text).strip()
         if stripped:
             text = stripped
+        else:
+            matched = WAVE_ONLY.fullmatch(text)
+            if matched and matched.group(1).strip():
+                text = matched.group(1).strip()
     if len(text) > max_len:
         text = text[:max_len].rstrip()
     return text
